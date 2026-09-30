@@ -1,0 +1,199 @@
+/* ============================================================
+   Paleta de DevWatch — la misma que se usó en todos los
+   diagramas y documentos del proyecto (EDT, Arquitectura, etc.)
+   ============================================================ */
+:root {
+  --color-primary: #2f5597;
+  --color-primary-light: #4472c4;
+  --color-success: #548235;
+  --color-danger: #c00000;
+  --color-warning: #bf8f00;
+  --color-bg: #f4f6f8;
+  --color-surface: #ffffff;
+  --color-border: #d9e2f3;
+  --color-text: #1f2937;
+  --color-text-muted: #6b7280;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 48px 20px;
+}
+
+/* ---------- Formularios (Login / Registro / Perfil) ---------- */
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 32px;
+  align-self: flex-start;
+}
+
+.auth-card h1 {
+  font-size: 22px;
+  margin: 0 0 4px;
+  color: var(--color-primary);
+}
+
+.auth-card .subtitle {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  margin: 0 0 24px;
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--color-text);
+}
+
+.field input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 14px;
+}
+
+.field input:focus {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 1px;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 11px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-light);
+}
+
+.btn-primary:disabled {
+  background: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  width: 100%;
+  padding: 11px;
+  background: transparent;
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.form-error {
+  background: #fce4d6;
+  color: var(--color-danger);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.form-success {
+  background: #e2efda;
+  color: var(--color-success);
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.form-footer {
+  margin-top: 18px;
+  font-size: 13px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.form-footer a {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.form-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Navbar ---------- */
+.navbar {
+  background: var(--color-primary);
+  color: white;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar .brand {
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.3px;
+}
+
+.navbar .nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.navbar .nav-links a,
+.navbar .nav-links button {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  opacity: 0.9;
+}
+
+.navbar .nav-links a:hover,
+.navbar .nav-links button:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
