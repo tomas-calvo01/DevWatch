@@ -1,16 +1,20 @@
-# React + Vite
+# DevWatch
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Plataforma web de monitoreo de servicios y gestión de incidentes, desarrollada 
+para la materia Gestión de Proyectos Informáticos.
 
-Currently, two official plugins are available:
+## Equipo
+- Calvo, Tomás — Frontend
+- González, Martín — Backend / Responsable del proyecto
+- Mousist, Martín — Motor de monitoreo / QA
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Seguimiento del proyecto
+El cronograma del proyecto (actividades, fechas, Hitos y estado de avance) 
+se gestiona en la pestaña [Projects](https://github.com/tomas-calvo01/DevWatch/projects) 
+de este repositorio.
 
-## React Compiler
+## Documentación
+La documentación completa (Acta de Constitución, Alcance, EDT, Requerimientos, 
+etc.) y los cambios en tiempo real están disponibles en Google Drive:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+🔗 [Ver Drive](https://drive.google.com/drive/folders/1Np44mk_BbO3v1j-mUao45r5yyUrBJ8lT)
