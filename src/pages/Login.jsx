@@ -9,8 +9,7 @@ import { login } from "../services/authService";
  * Criterios de aceptación (Documento de Requerimientos):
  * - Login con email/contraseña.
  * - Mensaje de error ante credenciales inválidas.
- * - Redirección al dashboard tras login exitoso (por ahora, a Servicios,
- *   hasta que construyamos el Dashboard real en 2.3).
+ * - Redirección al dashboard tras login exitoso.
  */
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -25,7 +24,7 @@ export default function Login() {
     setCargando(true);
     try {
       await login({ email, password });
-      navigate("/servicios");
+      navigate("/dashboard");
     } catch (err) {
       setError(err.message);
     } finally {

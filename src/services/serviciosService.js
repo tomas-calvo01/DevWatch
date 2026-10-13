@@ -17,6 +17,7 @@
  * que reemplazar: las pantallas siguen llamando a las mismas funciones.
  */
 import { getCurrentUser } from "./authService";
+import { eliminarIncidentesDeServicio } from "./incidentesService";
 
 const SERVICIOS_KEY = "devwatch_servicios";
 const COMPROBACIONES_KEY = "devwatch_comprobaciones";
@@ -188,7 +189,8 @@ export async function editarServicio(id, { nombre, url, tipo, intervalo_segundos
 }
 
 /**
- * US07 — Eliminar un servicio (y sus comprobaciones).
+ * US07 — Eliminar un servicio, con sus comprobaciones y sus incidentes
+ * (historial y notificaciones incluidos).
  */
 export async function eliminarServicio(id) {
   await delay();
@@ -198,6 +200,7 @@ export async function eliminarServicio(id) {
   servicios.splice(index, 1);
   writeServicios(servicios);
   writeComprobaciones(readComprobaciones().filter((c) => c.servicio_id !== id));
+  eliminarIncidentesDeServicio(id);
 }
 
 /**

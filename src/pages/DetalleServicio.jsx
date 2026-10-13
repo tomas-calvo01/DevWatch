@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import EstadoBadge from "../components/EstadoBadge";
 import { obtenerServicio, obtenerComprobaciones } from "../services/serviciosService";
+import { armarRango, formatearFecha } from "../utils/formatoFecha";
 
 /**
  * Detalle de un servicio (ruta /servicios/:id).
@@ -14,19 +15,6 @@ import { obtenerServicio, obtenerComprobaciones } from "../services/serviciosSer
  * - Estado y tiempo de respuesta de cada comprobación.
  * - Filtro por rango de fechas.
  */
-function formatearFecha(timestamp) {
-  return new Date(timestamp).toLocaleString("es-AR");
-}
-
-// Los <input type="date"> devuelven "AAAA-MM-DD": se convierten al inicio
-// y al fin de ese día en hora local, para que el rango sea inclusivo.
-function armarRango(desde, hasta) {
-  return {
-    desde: desde ? new Date(`${desde}T00:00:00`) : null,
-    hasta: hasta ? new Date(`${hasta}T23:59:59.999`) : null,
-  };
-}
-
 export default function DetalleServicio() {
   const { id } = useParams();
   const [servicio, setServicio] = useState(null);

@@ -7,19 +7,22 @@ import Profile from "./pages/Profile";
 import ListadoServicios from "./pages/ListadoServicios";
 import FormularioServicio from "./pages/FormularioServicio";
 import DetalleServicio from "./pages/DetalleServicio";
+import ListadoIncidentes from "./pages/ListadoIncidentes";
+import DetalleIncidente from "./pages/DetalleIncidente";
+import Notificaciones from "./pages/Notificaciones";
+import Dashboard from "./pages/Dashboard";
 import { getCurrentUser } from "./services/authService";
 import "./App.css";
 
 /**
- * Rutas del Módulo de Usuarios (actividad 2.1 de la EDT) y del Módulo
- * de Servicios (actividad 2.2: US05, US06, US07, US08 y US12).
- * Cuando construyamos el siguiente módulo (2.3 Dashboard) se van a
- * agregar acá sus rutas, siguiendo el mismo mapa de navegación del
- * Documento de Diseño de Interfaz.
+ * Rutas del Módulo de Usuarios (actividad 2.1 de la EDT), del Módulo
+ * de Servicios (actividad 2.2: US05, US06, US07, US08 y US12) y de
+ * Incidentes, Notificaciones y Dashboard (actividad 2.3: US13 a US24),
+ * siguiendo el mapa de navegación del Documento de Diseño de Interfaz.
  */
 function InicioRedirect() {
   const usuario = getCurrentUser();
-  return <Navigate to={usuario ? "/servicios" : "/login"} replace />;
+  return <Navigate to={usuario ? "/dashboard" : "/login"} replace />;
 }
 
 export default function App() {
@@ -37,6 +40,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
                 </ProtectedRoute>
               }
             />
@@ -69,6 +80,30 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <FormularioServicio />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/incidentes"
+              element={
+                <ProtectedRoute>
+                  <ListadoIncidentes />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/incidentes/:id"
+              element={
+                <ProtectedRoute>
+                  <DetalleIncidente />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/alertas"
+              element={
+                <ProtectedRoute>
+                  <Notificaciones />
                 </ProtectedRoute>
               }
             />
