@@ -1,0 +1,21 @@
+{
+  "name": "devwatch-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Backend de DevWatch (Node.js + Express + PostgreSQL)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "probar": "node scripts/probar-auth.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.12.0"
+  }
+}
