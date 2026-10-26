@@ -91,3 +91,25 @@ los servicios del usuario autenticado (uno inexistente o ajeno responde `404 Ser
 Notas: el `id` de cada comprobación se devuelve como **string** (columna `BIGSERIAL`), porque puede
 superar el rango seguro de los enteros de JavaScript. Una fecha ISO sin hora (`2026-01-31`) se toma
 como medianoche UTC. Pruebas (con el API corriendo): `npm run probar-servicios`.
+
+## Gestión de Incidentes
+
+Actividad 3.4. El Motor de Monitoreo abre y resuelve incidentes solo (`src/monitor/incidentes.js`,
+llamado desde `hooks.js`); la API (`/api/incidentes`) los lista, los avanza de estado y cambia su severidad.
+
+- **Apertura:** cuando un servicio acumula `INCIDENTE_FALLOS_CONSECUTIVOS` comprobaciones seguidas
+  `DOWN`/`TIMEOUT` (por defecto 2; un valor más alto evita falsos positivos por fallos de red aislados).
+  La racha se cuenta en la base, no en memoria. `fecha_inicio` es la primera falla de la racha.
+- **Resolución:** una comprobación `UP` pasa a `Resuelto` el incidente activo, sea cual sea su estado.
+- **Un solo incidente activo por servicio:** lo garantiza un índice único parcial.
+- **Flujo manual:** `Detectado → Investigando → Identificado → Resuelto → Cerrado`, sin saltear ni retroceder.
+
+| Método y ruta                         | Descripción                                                                         |
+| ------------------------------------- | ----------------------------------------------------------------------------------- |
+| `GET /api/incidentes`                 | Lista (más reciente primero). Query: `servicio_id`, `estado` (o `activos`), `desde`, `hasta`. |
+| `GET /api/incidentes/:id`             | Detalle con `historial` (el `usuario` es el nombre, o `Sistema`).                   |
+| `PATCH /api/incidentes/:id/estado`    | Body `{ "estado": "Investigando" }`: avanza al siguiente estado.                    |
+| `PATCH /api/incidentes/:id/severidad` | Body `{ "severidad": "Crítica" \| "Alta" \| "Media" \| "Baja" }`.                   |
+
+Variable nueva: `INCIDENTE_FALLOS_CONSECUTIVOS` (en `.env.example`). Pruebas (con el API corriendo y
+`npm run monitor` detenido): `npm run probar-incidentes`.

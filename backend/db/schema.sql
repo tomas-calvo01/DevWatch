@@ -45,3 +45,34 @@ CREATE INDEX IF NOT EXISTS idx_servicios_usuario ON servicios (usuario_id);
 -- Un usuario no puede registrar dos servicios con la misma URL.
 -- La API traduce la violación de este índice (23505) a un 409.
 CREATE UNIQUE INDEX IF NOT EXISTS uq_servicios_usuario_url ON servicios (usuario_id, url);
+
+-- Gestión de Incidentes (actividad 3.4).
+CREATE TABLE IF NOT EXISTS incidentes (
+  id SERIAL PRIMARY KEY,
+  servicio_id INTEGER NOT NULL REFERENCES servicios(id) ON DELETE CASCADE,
+  estado VARCHAR(20) NOT NULL DEFAULT 'Detectado'
+    CHECK (estado IN ('Detectado','Investigando','Identificado','Resuelto','Cerrado')),
+  severidad VARCHAR(10) NOT NULL DEFAULT 'Alta' CHECK (severidad IN ('Crítica','Alta','Media','Baja')),
+  fecha_inicio TIMESTAMP NOT NULL DEFAULT now(),
+  fecha_resolucion TIMESTAMP NULL
+);
+
+-- MODIFICACIÓN DEL DISEÑO DE BD (actualizar ese documento): se agrega la columna
+-- usuario_id, que el diseño no tenía. US14 y US15 exigen mostrar el usuario
+-- responsable de cada cambio de estado. NULL = cambio hecho por el Sistema
+-- (apertura y resolución automáticas del Motor de Monitoreo).
+CREATE TABLE IF NOT EXISTS historial_incidentes (
+  id SERIAL PRIMARY KEY,
+  incidente_id INTEGER NOT NULL REFERENCES incidentes(id) ON DELETE CASCADE,
+  estado_anterior VARCHAR(20) NULL,
+  estado_nuevo VARCHAR(20) NOT NULL,
+  fecha_cambio TIMESTAMP NOT NULL DEFAULT now(),
+  usuario_id INTEGER NULL REFERENCES usuarios(id) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_incidentes_servicio_estado ON incidentes (servicio_id, estado);
+CREATE INDEX IF NOT EXISTS idx_historial_incidente_fecha ON historial_incidentes (incidente_id, fecha_cambio);
+
+-- Un solo incidente activo (ni Resuelto ni Cerrado) por servicio.
+CREATE UNIQUE INDEX IF NOT EXISTS uq_incidente_activo_por_servicio
+  ON incidentes (servicio_id) WHERE estado NOT IN ('Resuelto','Cerrado');
