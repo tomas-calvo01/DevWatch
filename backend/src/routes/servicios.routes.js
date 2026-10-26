@@ -8,6 +8,7 @@
 import { Router } from "express";
 import { query } from "../db.js";
 import { requireAuth } from "../middleware/auth.js";
+import { parsearFechaIso } from "../utils/fechas.js";
 
 const router = Router();
 router.use(requireAuth);
@@ -86,22 +87,6 @@ function parsearId(texto) {
   if (!/^\d+$/.test(texto)) return null;
   const id = Number(texto);
   return id > 0 && id <= INTERVALO_MAXIMO ? id : null;
-}
-
-// Fecha ISO 8601 estricta (con día/mes/hora reales: 2026-02-30 se rechaza).
-const REGEX_ISO = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,9})?)?(Z|[+-]\d{2}:?\d{2})?)?$/;
-
-function parsearFechaIso(valor) {
-  if (typeof valor !== "string") return null;
-  const m = REGEX_ISO.exec(valor);
-  if (!m) return null;
-  const [anio, mes, dia] = [Number(m[1]), Number(m[2]), Number(m[3])];
-  const calendario = new Date(Date.UTC(anio, mes - 1, dia));
-  if (calendario.getUTCFullYear() !== anio || calendario.getUTCMonth() !== mes - 1 || calendario.getUTCDate() !== dia) {
-    return null;
-  }
-  const fecha = new Date(valor);
-  return Number.isNaN(fecha.getTime()) ? null : fecha;
 }
 
 function enteroPositivo(valor, porDefecto) {
