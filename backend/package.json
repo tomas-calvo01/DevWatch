@@ -8,7 +8,10 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "probar": "node scripts/probar-auth.js"
+    "probar": "node scripts/probar-auth.js",
+    "monitor": "node src/monitor/index.js",
+    "monitor:dev": "node --watch src/monitor/index.js",
+    "probar-monitor": "node scripts/probar-monitor.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
