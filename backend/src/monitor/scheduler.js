@@ -50,6 +50,7 @@ export function crearScheduler() {
 
   async function comprobarYGuardar(servicio) {
     const resultado = await comprobarServicio(servicio);
+    let comprobacion;
     try {
       const { rows } = await query(SQL_INSERTAR, [
         servicio.id,
@@ -58,16 +59,24 @@ export function crearScheduler() {
         resultado.status_code,
         resultado.tiempo_respuesta_ms,
       ]);
-      const comprobacion = rows[0];
-      const detalle = resultado.status_code ?? resultado.error ?? "-";
-      console.log(
-        `[monitor] #${servicio.id} ${servicio.nombre}: ${comprobacion.estado} (${detalle}` +
-          `${resultado.tiempo_respuesta_ms !== null ? `, ${resultado.tiempo_respuesta_ms} ms` : ""})`
-      );
+      comprobacion = rows[0];
+    } catch (err) {
+      // Puede fallar el INSERT (p. ej. el servicio se borró durante el check).
+      console.error(`[monitor] Error al guardar la comprobación del servicio #${servicio.id}: ${err.message}`);
+      return;
+    }
+
+    const detalle = resultado.status_code ?? resultado.error ?? "-";
+    console.log(
+      `[monitor] #${servicio.id} ${servicio.nombre}: ${comprobacion.estado} (${detalle}` +
+        `${resultado.tiempo_respuesta_ms !== null ? `, ${resultado.tiempo_respuesta_ms} ms` : ""})`
+    );
+
+    // Si el hook falla, la comprobación ya guardada se conserva.
+    try {
       await alResultado(servicio, comprobacion);
     } catch (err) {
-      // Puede fallar el INSERT (p. ej. el servicio se borró durante el check) o el hook.
-      console.error(`[monitor] Error al guardar la comprobación del servicio #${servicio.id}: ${err.message}`);
+      console.error(`[monitor] Error en el hook alResultado del servicio #${servicio.id}: ${err.message}`);
     }
   }
 

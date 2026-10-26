@@ -28,7 +28,9 @@ export async function comprobarServicio(servicio) {
     const estado = respuesta.status >= 200 && respuesta.status <= 399 ? "UP" : "DOWN";
     return { estado, status_code: respuesta.status, tiempo_respuesta_ms: tiempo };
   } catch (err) {
-    if (controlador.signal.aborted) {
+    // Solo es TIMEOUT si la cancelación la provocó nuestro temporizador; un error
+    // de red que coincida con el vencimiento sigue siendo DOWN.
+    if (controlador.signal.aborted && (err.name === "AbortError" || err.name === "TimeoutError")) {
       return { estado: "TIMEOUT", status_code: null, tiempo_respuesta_ms: null };
     }
     // Error de red, DNS, conexión rechazada o URL inválida.
