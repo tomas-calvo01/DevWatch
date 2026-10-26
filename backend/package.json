@@ -11,7 +11,8 @@
     "probar": "node scripts/probar-auth.js",
     "monitor": "node src/monitor/index.js",
     "monitor:dev": "node --watch src/monitor/index.js",
-    "probar-monitor": "node scripts/probar-monitor.js"
+    "probar-monitor": "node scripts/probar-monitor.js",
+    "probar-servicios": "node scripts/probar-servicios.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

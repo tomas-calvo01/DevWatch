@@ -4,6 +4,7 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
 import usuariosRoutes from "./routes/usuarios.routes.js";
+import serviciosRoutes from "./routes/servicios.routes.js";
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/usuarios", usuariosRoutes);
+app.use("/api/servicios", serviciosRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: "Ruta no encontrada." });

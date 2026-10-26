@@ -72,3 +72,22 @@ Detené `npm run monitor` antes de correrla para que no compruebe también esos 
 
 El `tiempo_respuesta_ms` se mide hasta recibir el status y las cabeceras. Las
 redirecciones se siguen, así que se registra el status de la respuesta final.
+
+## Módulo de Servicios (API)
+
+Actividad 3.2. Todos los endpoints requieren `Authorization: Bearer <token>` y trabajan solo sobre
+los servicios del usuario autenticado (uno inexistente o ajeno responde `404 Servicio no encontrado.`).
+
+| Método y ruta                         | Descripción                                                              |
+| ------------------------------------- | ------------------------------------------------------------------------ |
+| `GET /api/servicios`                  | Lista los servicios propios (más nuevos primero), con `ultimo_estado`.   |
+| `POST /api/servicios`                 | Alta. Body: `nombre`, `url`, `tipo` (opc.), `intervalo_segundos` (opc.). |
+| `GET /api/servicios/:id`              | Detalle.                                                                 |
+| `PUT /api/servicios/:id`              | Edita nombre, URL, tipo e intervalo (el historial se conserva).          |
+| `DELETE /api/servicios/:id`           | Baja (204). Borra sus comprobaciones por cascada.                        |
+| `PATCH /api/servicios/:id/activo`     | Body `{ "activo": true \| false }` (booleano estricto).                  |
+| `GET /api/servicios/:id/comprobaciones` | Historial. Query opcional: `desde`, `hasta` (ISO, inclusivos), `limite` (def. 100, máx. 500), `pagina` (def. 1). |
+
+Notas: el `id` de cada comprobación se devuelve como **string** (columna `BIGSERIAL`), porque puede
+superar el rango seguro de los enteros de JavaScript. Una fecha ISO sin hora (`2026-01-31`) se toma
+como medianoche UTC. Pruebas (con el API corriendo): `npm run probar-servicios`.

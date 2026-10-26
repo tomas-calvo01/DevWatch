@@ -37,3 +37,11 @@ CREATE TABLE IF NOT EXISTS comprobaciones (
 );
 
 CREATE INDEX IF NOT EXISTS idx_comprobaciones_servicio_ts ON comprobaciones (servicio_id, timestamp DESC);
+
+-- Módulo de Servicios (actividad 3.2).
+-- Listado de servicios de un usuario.
+CREATE INDEX IF NOT EXISTS idx_servicios_usuario ON servicios (usuario_id);
+
+-- Un usuario no puede registrar dos servicios con la misma URL.
+-- La API traduce la violación de este índice (23505) a un 409.
+CREATE UNIQUE INDEX IF NOT EXISTS uq_servicios_usuario_url ON servicios (usuario_id, url);
