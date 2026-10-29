@@ -1,0 +1,9 @@
+[
+{"id":"R1","riesgo":"Complejidad del sistema de monitoreo","probabilidad":"Media","impacto":"Alto","mitigacion":"Diseño incremental por sprint","tareas":"3.3, 3.4, 3.5"},
+{"id":"R2","riesgo":"Problemas con tareas periódicas (scheduler)","probabilidad":"Media","impacto":"Alto","mitigacion":"Pruebas tempranas del motor","tareas":"3.3, 3.5"},
+{"id":"R3","riesgo":"Exceso de funcionalidades (scope creep)","probabilidad":"Alta","impacto":"Alto","mitigacion":"MVP acotado y backlog priorizado","tareas":"*"},
+{"id":"R4","riesgo":"Falta de tiempo","probabilidad":"Media","impacto":"Alto","mitigacion":"Sprints cortos y buffer de contingencia","tareas":"*"},
+{"id":"R5","riesgo":"Problemas de infraestructura","probabilidad":"Media","impacto":"Medio","mitigacion":"Entornos de testing previos","tareas":"5.1, 5.2"},
+{"id":"R6","riesgo":"Dificultades de integración","probabilidad":"Media","impacto":"Medio","mitigacion":"Integración progresiva y CI","tareas":"4.1, 4.3"},
+{"id":"R7","riesgo":"Falta de experiencia en alguna tecnología","probabilidad":"Media","impacto":"Medio","mitigacion":"Capacitación dirigida por sprint","tareas":"3.5, 5.2"}
+]

@@ -1,0 +1,19 @@
+[
+{"id":"1.1","tarea":"Documento de Requerimientos","issue":1,"estado":"Done","hito":"Hito 1","horas":10,"costo_usd":50,"predecesoras":"","inicio":"2026-09-08","fin":"2026-09-14","ruta_critica":"si"},
+{"id":"1.2","tarea":"Diseño de Arquitectura","issue":2,"estado":"Done","hito":"Hito 1","horas":12,"costo_usd":60,"predecesoras":"1.1","inicio":"2026-09-15","fin":"2026-09-21","ruta_critica":"si"},
+{"id":"1.3","tarea":"Diseño de Base de Datos","issue":3,"estado":"Done","hito":"Hito 1","horas":12,"costo_usd":60,"predecesoras":"1.2","inicio":"2026-09-22","fin":"2026-09-28","ruta_critica":"no"},
+{"id":"1.4","tarea":"Diseño de Interfaz","issue":4,"estado":"Done","hito":"Hito 1","horas":12,"costo_usd":60,"predecesoras":"1.2","inicio":"2026-09-22","fin":"2026-09-28","ruta_critica":"si"},
+{"id":"5.1","tarea":"Configuración de Infraestructura","issue":5,"estado":"Done","hito":"Hito 3","horas":12,"costo_usd":60,"predecesoras":"1.2","inicio":"2026-09-22","fin":"2026-09-28","ruta_critica":"no"},
+{"id":"2.1","tarea":"Módulo de Usuarios (UI)","issue":6,"estado":"Done","hito":"Hito 1","horas":26,"costo_usd":130,"predecesoras":"1.4","inicio":"2026-09-29","fin":"2026-10-05","ruta_critica":"si"},
+{"id":"4.2","tarea":"Plan de Testing","issue":7,"estado":"Done","hito":"Hito 3","horas":14,"costo_usd":70,"predecesoras":"1.1","inicio":"2026-09-15","fin":"2026-09-21","ruta_critica":"no"},
+{"id":"2.2","tarea":"Módulo de Servicios (UI)","issue":8,"estado":"Done","hito":"Hito 1","horas":26,"costo_usd":130,"predecesoras":"2.1","inicio":"2026-10-06","fin":"2026-10-12","ruta_critica":"si"},
+{"id":"2.3","tarea":"Dashboard","issue":9,"estado":"Done","hito":"Hito 1","horas":25,"costo_usd":125,"predecesoras":"2.2","inicio":"2026-10-13","fin":"2026-10-19","ruta_critica":"si"},
+{"id":"3.1","tarea":"Módulo de Usuarios (API)","issue":10,"estado":"Done","hito":"Hito 2","horas":18,"costo_usd":90,"predecesoras":"1.3, 2.3","inicio":"2026-10-20","fin":"2026-10-26","ruta_critica":"no"},
+{"id":"3.3","tarea":"Motor de Monitoreo","issue":11,"estado":"Done","hito":"Hito 2","horas":24,"costo_usd":120,"predecesoras":"1.3, 2.3","inicio":"2026-10-20","fin":"2026-10-26","ruta_critica":"si"},
+{"id":"3.2","tarea":"Módulo de Servicios (API)","issue":12,"estado":"Done","hito":"Hito 2","horas":20,"costo_usd":100,"predecesoras":"3.1","inicio":"2026-10-27","fin":"2026-11-02","ruta_critica":"no"},
+{"id":"3.4","tarea":"Gestión de Incidentes","issue":13,"estado":"Done","hito":"Hito 2","horas":16,"costo_usd":80,"predecesoras":"3.3","inicio":"2026-10-27","fin":"2026-11-02","ruta_critica":"si"},
+{"id":"3.5","tarea":"Sistema de Alertas","issue":14,"estado":"Todo","hito":"Hito 2","horas":14,"costo_usd":70,"predecesoras":"3.4","inicio":"2026-11-03","fin":"2026-11-09","ruta_critica":"si"},
+{"id":"4.1","tarea":"Integración Frontend-Backend","issue":15,"estado":"Todo","hito":"Hito 3","horas":26,"costo_usd":130,"predecesoras":"2.3, 3.2, 3.5","inicio":"2026-11-10","fin":"2026-11-16","ruta_critica":"si"},
+{"id":"4.3","tarea":"Ejecución de Pruebas","issue":16,"estado":"Todo","hito":"Hito 3","horas":21,"costo_usd":105,"predecesoras":"4.1, 4.2","inicio":"2026-11-17","fin":"2026-11-23","ruta_critica":"si"},
+{"id":"5.2","tarea":"Despliegue del MVP","issue":17,"estado":"Todo","hito":"Hito 3","horas":18,"costo_usd":90,"predecesoras":"4.3, 5.1","inicio":"2026-11-24","fin":"2026-11-30","ruta_critica":"si"}
+]
