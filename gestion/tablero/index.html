@@ -1,0 +1,588 @@
+<style>
+  .dw { display: grid; gap: var(--cds-gap-lg); font-family: var(--font-anthropic-sans); }
+  .dw-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+  .dw-take { color: var(--color-fg-muted); margin: var(--cds-gap-xs) 0 0; max-width: 72ch; }
+  .dw-tabs { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); border-bottom: 1px solid var(--color-border-line); }
+  .dw-tab { appearance: none; background: none; border: 0; border-bottom: 2px solid transparent; padding: var(--cds-pad-sm) var(--cds-pad-md); font: inherit; color: var(--color-fg-muted); cursor: pointer; }
+  .dw-tab[aria-selected="true"] { color: var(--color-fg); border-bottom-color: var(--color-fg); }
+  .dw-tab:focus-visible, .dw-sel:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .dw-page { display: grid; gap: var(--cds-gap-md); }
+  .dw-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr)); gap: var(--cds-gap-md); }
+  .dw-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--cds-gap-md); }
+  .dw-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+  .dw-kpi { display: grid; gap: var(--cds-gap-xs); align-content: start; }
+  .dw-kpi .v { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .dw-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .dw-sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+  .dw-h { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+  .dw-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: var(--cds-gap-xs) 0 var(--cds-gap-md); max-width: 80ch; }
+  .dw-scroll { overflow-x: auto; }
+  .dw-t { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .dw-t th, .dw-t td { text-align: left; padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+  .dw-t th { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); white-space: nowrap; }
+  .dw-t .n { text-align: right; white-space: nowrap; }
+  .dw-t tr.sel td { background: var(--cds-surface-popover); }
+  .dw-pill { display: inline-block; padding: 0 var(--cds-pad-sm); border-radius: 999px; border: 1px solid currentColor; font-size: var(--cds-font-size-caption); white-space: nowrap; }
+  .dw .ok { color: var(--color-ok); } .dw .warn { color: var(--color-warn); } .dw .bad { color: var(--color-bad); }
+  .dw-chartwrap { position: relative; }
+  .dw-chart { min-height: 240px; }
+  .dw-chart svg { display: block; }
+  .dw-chart text { fill: var(--color-fg-muted); font-size: var(--cds-font-size-caption); font-family: var(--font-anthropic-sans); }
+  .dw-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); max-width: 16rem; z-index: 2; }
+  .dw-tip .k { color: var(--cds-text-secondary); }
+  .dw-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-bottom: var(--cds-gap-sm); }
+  .dw-legend i { display: inline-block; width: .75rem; height: .75rem; border-radius: 3px; margin-right: .35rem; vertical-align: -1px; }
+  .dw-hitos { display: grid; gap: var(--cds-gap-md); }
+  .dw-hito { display: grid; gap: var(--cds-gap-xs); }
+  .dw-hito .top { display: flex; justify-content: space-between; gap: var(--cds-gap-sm); flex-wrap: wrap; }
+  .dw-bar { height: .6rem; border-radius: 999px; background: var(--cds-chart-grid); overflow: hidden; }
+  .dw-bar span { display: block; height: 100%; border-radius: 999px; width: 0; }
+  .dw-controls { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); align-items: end; }
+  .dw-controls label { display: grid; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .dw-sel { font: inherit; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); max-width: 100%; }
+  .dw-result { display: grid; gap: var(--cds-gap-sm); }
+  .dw-matrix { display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); gap: 4px; font-size: var(--cds-font-size-caption); }
+  .dw-matrix .ax { color: var(--color-fg-muted); display: flex; align-items: center; justify-content: center; padding: var(--cds-pad-xs); text-align: center; }
+  .dw-matrix .cell { min-height: 4.2rem; border-radius: var(--cds-radius); padding: var(--cds-pad-xs); display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start; border: 1px solid var(--color-border-line); }
+  .dw-matrix .cell.n1 { background: var(--color-bg); }
+  .dw-matrix .cell.n2 { background: var(--cds-chart-grid); }
+  .dw-matrix .cell.n3 { border-color: var(--cds-chart-status-critical); }
+  .dw-chip { border: 1px solid var(--color-border-line); background: var(--color-panel); border-radius: 999px; padding: 0 .45rem; font-variant-numeric: tabular-nums; }
+  .dw-informe { max-width: 72ch; display: grid; gap: var(--cds-gap-md); line-height: 1.55; }
+  .dw-informe p, .dw-informe ul { margin: 0; }
+  .dw-informe h3 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: var(--cds-gap-sm) 0 0; }
+  .dw .dw-informe b { font-weight: var(--cds-font-weight-medium); font-variant-numeric: tabular-nums; }
+  [data-dash-source-state=empty] { color: transparent; }
+  [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+</style>
+
+<div class="dw">
+  <header class="dw-head" id="encabezado">
+    <h1>Tablero DevWatch</h1>
+    <p class="dw-take" id="conclusion">
+      Avance <b data-source="avance" data-field="avance" data-row="0" data-fmt="pct" class="dash-skeleton">—</b>
+      contra <b data-source="avance" data-field="avance_planificado" data-row="0" data-fmt="pct" class="dash-skeleton">—</b> planificado a hoy.
+      Si lo pendiente arranca ya, el proyecto termina el
+      <b data-source="resumen" data-field="fin_estimado" data-row="0" data-fmt="fecha" class="dash-skeleton">—</b>,
+      con <b data-source="resumen" data-field="margen_dias" data-row="0" data-fmt="dias" class="dash-skeleton">—</b> de margen sobre la fecha límite del
+      <b data-source="resumen" data-field="fin_limite" data-row="0" data-fmt="fecha" class="dash-skeleton">—</b>.
+    </p>
+  </header>
+
+  <nav class="dw-tabs" role="tablist" aria-label="Secciones">
+    <button class="dw-tab" role="tab" id="tab-resumen" data-tab="resumen" aria-selected="true">Resumen</button>
+    <button class="dw-tab" role="tab" id="tab-holguras" data-tab="holguras" aria-selected="false">Holguras</button>
+    <button class="dw-tab" role="tab" id="tab-escenarios" data-tab="escenarios" aria-selected="false">Escenarios</button>
+    <button class="dw-tab" role="tab" id="tab-riesgos" data-tab="riesgos" aria-selected="false">Riesgos</button>
+    <button class="dw-tab" role="tab" id="tab-informe" data-tab="informe" aria-selected="false">Informe</button>
+  </nav>
+
+  <!-- RESUMEN -->
+  <section class="dw-page" id="resumen" role="tabpanel" aria-labelledby="tab-resumen">
+    <div class="dw-kpis" id="indicadores">
+      <div class="dw-card dw-kpi" id="kpi-avance">
+        <span class="dw-label">Avance real (por costo)</span>
+        <span class="v" data-source="avance" data-field="avance" data-row="0" data-fmt="pct">—</span>
+        <span class="dw-sub"><span data-source="avance" data-field="tareas_hechas" data-row="0" data-fmt="num">—</span> de <span data-source="avance" data-field="tareas_totales" data-row="0" data-fmt="num">—</span> tareas terminadas</span>
+      </div>
+      <div class="dw-card dw-kpi" id="kpi-plan">
+        <span class="dw-label">Avance planificado a hoy</span>
+        <span class="v" data-source="avance" data-field="avance_planificado" data-row="0" data-fmt="pct">—</span>
+        <span class="dw-sub">al <span data-source="avance" data-field="hoy" data-row="0" data-fmt="fecha">—</span></span>
+      </div>
+      <div class="dw-card dw-kpi" id="kpi-spi">
+        <span class="dw-label">Índice de cronograma (SPI)</span>
+        <span class="v" data-source="avance" data-field="spi" data-row="0" data-fmt="dec">—</span>
+        <span class="dw-sub" id="spi-texto">—</span>
+      </div>
+      <div class="dw-card dw-kpi" id="kpi-costo">
+        <span class="dw-label">Costo ejecutado</span>
+        <span class="v" data-source="avance" data-field="valor_ganado_usd" data-row="0" data-fmt="usd">—</span>
+        <span class="dw-sub">de <span data-source="avance" data-field="presupuesto_usd" data-row="0" data-fmt="usd">—</span> · faltan <span data-source="avance" data-field="pendiente_usd" data-row="0" data-fmt="usd">—</span></span>
+      </div>
+      <div class="dw-card dw-kpi" id="kpi-fin">
+        <span class="dw-label">Fin estimado</span>
+        <span class="v" data-source="resumen" data-field="fin_estimado" data-row="0" data-fmt="fecha">—</span>
+        <span class="dw-sub">límite <span data-source="resumen" data-field="fin_limite" data-row="0" data-fmt="fecha">—</span> · margen <span data-source="resumen" data-field="margen_dias" data-row="0" data-fmt="dias">—</span></span>
+      </div>
+    </div>
+
+    <div class="dw-grid">
+      <div class="dw-card" id="curva-s">
+        <h2 class="dw-h">Curva S: costo planificado y ganado</h2>
+        <p class="dw-note">La línea es el costo que el plan prevé consumido día a día. El punto es el valor ganado hoy: el costo de las tareas en Done.</p>
+        <div class="dw-chartwrap">
+          <div class="dw-chart dash-skeleton" id="curva-chart" data-source="curva avance"></div>
+          <div class="dw-tip" id="curva-tip" hidden></div>
+        </div>
+      </div>
+      <div class="dw-card" id="avance-hitos">
+        <h2 class="dw-h">Avance por hito</h2>
+        <p class="dw-note">Porcentaje del costo de cada hito que ya está en Done.</p>
+        <div class="dw-hitos dash-skeleton" id="hitos-lista" data-source="hitos"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOLGURAS -->
+  <section class="dw-page" id="holguras" role="tabpanel" aria-labelledby="tab-holguras" hidden>
+    <div class="dw-card" id="postergables">
+      <h2 class="dw-h">Qué se puede postergar hoy, y hasta cuándo</h2>
+      <p class="dw-note">Tareas pendientes, replanificadas desde hoy: cada una arranca apenas terminan sus predecesoras. La holgura es cuánto puede correrse sin pasar la fecha límite del plan. Las tareas con la misma holgura mínima son la ruta crítica restante: <b data-source="resumen" data-field="sin_holgura" data-row="0" data-fmt="txt">—</b>.</p>
+      <div class="dw-scroll">
+        <table class="dw-t" id="tabla-pronostico" data-source="pronostico" data-row-key="id">
+          <thead><tr>
+            <th data-field="id">Tarea</th><th data-field="tarea">Nombre</th>
+            <th data-field="inicio_plan">Inicio plan</th><th data-field="inicio_posible">Puede arrancar</th>
+            <th data-field="inicio_mas_tarde">Arranque más tarde</th><th class="n" data-field="holgura_dias">Holgura</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="dw-card" id="gantt">
+      <h2 class="dw-h">Cronograma y holgura del plan</h2>
+      <p class="dw-note">Barras con las fechas planificadas en GitHub Projects. La cola clara es la holgura total que el plan original le daba a cada tarea.</p>
+      <div class="dw-legend" id="gantt-leyenda"></div>
+      <div class="dw-chartwrap">
+        <div class="dw-chart dash-skeleton" id="gantt-chart" data-source="plan avance"></div>
+        <div class="dw-tip" id="gantt-tip" hidden></div>
+      </div>
+    </div>
+
+    <div class="dw-card" id="tabla-plan-card">
+      <h2 class="dw-h">Ruta crítica del plan</h2>
+      <p class="dw-note">Método de la ruta crítica sobre las predecesoras del cronograma. Holgura 0 = la tarea está en la ruta crítica.</p>
+      <div class="dw-scroll">
+        <table class="dw-t" id="tabla-plan" data-source="plan" data-row-key="id">
+          <thead><tr>
+            <th data-field="id">Tarea</th><th data-field="tarea">Nombre</th><th data-field="estado">Estado</th>
+            <th data-field="inicio">Inicio</th><th data-field="fin">Fin</th>
+            <th class="n" data-field="holgura_dias">Holgura</th><th data-field="critica">Crítica</th><th data-field="inicio_mas_tarde">Arranque más tarde</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESCENARIOS -->
+  <section class="dw-page" id="escenarios" role="tabpanel" aria-labelledby="tab-escenarios" hidden>
+    <div class="dw-card dw-result" id="simulador">
+      <h2 class="dw-h">Simulador de postergación</h2>
+      <p class="dw-note">Si el cliente pide correr el proyecto, o hay que demorar una tarea, elegí qué se corre y cuántas semanas. El resultado se compara con la fecha límite del plan.</p>
+      <div class="dw-controls">
+        <label for="sim-opcion">Qué se posterga
+          <select class="dw-sel" id="sim-opcion" data-source="pronostico"></select>
+        </label>
+        <label for="sim-semanas">Cuánto
+          <select class="dw-sel" id="sim-semanas">
+            <option value="0">0 semanas</option><option value="1">1 semana</option><option value="2">2 semanas</option>
+            <option value="3">3 semanas</option><option value="4">4 semanas</option><option value="5">5 semanas</option><option value="6">6 semanas</option>
+          </select>
+        </label>
+      </div>
+      <div class="dw-kpis">
+        <div class="dw-kpi">
+          <span class="dw-label">Fin del proyecto</span>
+          <span class="v" id="sim-fin" data-source="escenarios" data-field="fin_proyecto" data-fmt="fecha">—</span>
+          <span class="dw-sub">límite <span id="sim-limite" data-source="escenarios" data-field="fin_limite" data-fmt="fecha">—</span></span>
+        </div>
+        <div class="dw-kpi">
+          <span class="dw-label">Contra la fecha límite</span>
+          <span class="v" id="sim-dias" data-source="escenarios" data-field="dias_sobre_limite" data-fmt="exceso">—</span>
+          <span class="dw-sub">¿Es viable? <span class="dw-pill" id="sim-viable" data-source="escenarios" data-field="viable" data-fmt="txt">—</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dw-card" id="tabla-escenarios-card">
+      <h2 class="dw-h" id="esc-titulo">Todas las opciones de semanas</h2>
+      <p class="dw-note">Fin del proyecto para cada cantidad de semanas, con lo elegido arriba.</p>
+      <div class="dw-scroll">
+        <table class="dw-t" id="tabla-escenarios" data-source="escenarios" data-row-key="opcion,semanas">
+          <thead><tr>
+            <th class="n" data-field="semanas">Semanas</th><th data-field="fin_proyecto">Fin del proyecto</th>
+            <th class="n" data-field="dias_sobre_limite">Contra el límite</th><th data-field="viable">Viable</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIESGOS -->
+  <section class="dw-page" id="riesgos" role="tabpanel" aria-labelledby="tab-riesgos" hidden>
+    <div class="dw-grid">
+      <div class="dw-card" id="matriz">
+        <h2 class="dw-h">Matriz de probabilidad e impacto</h2>
+        <p class="dw-note">Riesgos del Acta de Constitución. Borde rojo = exposición alta.</p>
+        <div class="dw-matrix dash-skeleton" id="matriz-grid" data-source="riesgos_eval"></div>
+      </div>
+      <div class="dw-card dw-kpi" id="contingencia">
+        <h2 class="dw-h">Buffer de contingencia (R4, falta de tiempo)</h2>
+        <p class="dw-note">La mitigación de R4 es tener un buffer. El adelanto actual del proyecto es ese buffer:</p>
+        <span class="v" data-source="resumen" data-field="margen_dias" data-row="0" data-fmt="dias">—</span>
+        <span class="dw-sub">Equivale a <span data-source="resumen" data-field="margen_semanas" data-row="0" data-fmt="num">—</span> semana(s) completas que se pueden correr sin pasar el <span data-source="resumen" data-field="fin_limite" data-row="0" data-fmt="fecha">—</span>.</span>
+      </div>
+    </div>
+    <div class="dw-card" id="tabla-riesgos-card">
+      <h2 class="dw-h">Riesgos y mitigación</h2>
+      <p class="dw-note">Exposición = probabilidad × impacto (escala 1 a 3). Un riesgo sigue expuesto mientras quede alguna de sus tareas pendiente.</p>
+      <div class="dw-scroll">
+        <table class="dw-t" id="tabla-riesgos" data-source="riesgos_eval" data-row-key="id">
+          <thead><tr>
+            <th data-field="id">Id</th><th data-field="riesgo">Riesgo</th><th data-field="probabilidad">Prob.</th><th data-field="impacto">Impacto</th>
+            <th data-field="nivel">Nivel</th><th data-field="mitigacion">Mitigación</th><th data-field="tareas_pendientes">Tareas pendientes</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- INFORME -->
+  <section class="dw-page" id="informe" role="tabpanel" aria-labelledby="tab-informe" hidden>
+    <article class="dw-card dw-informe" id="informe-texto">
+      <h2 class="dw-h">Informe de avance al <span data-source="avance" data-field="hoy" data-row="0" data-fmt="fechalarga">—</span></h2>
+
+      <h3>Estado general</h3>
+      <p>El proyecto tiene <b data-source="avance" data-field="tareas_hechas" data-row="0" data-fmt="num">—</b> de
+        <b data-source="avance" data-field="tareas_totales" data-row="0" data-fmt="num">—</b> tareas terminadas. Medido por costo, el avance es
+        <b data-source="avance" data-field="avance" data-row="0" data-fmt="pct">—</b>, contra
+        <b data-source="avance" data-field="avance_planificado" data-row="0" data-fmt="pct">—</b> que preveía el plan a esta fecha.
+        El índice de desempeño del cronograma (SPI) es <b data-source="avance" data-field="spi" data-row="0" data-fmt="dec">—</b>
+        <span id="inf-spi">—</span>.</p>
+
+      <h3>Costo</h3>
+      <p>Se ejecutaron <b data-source="avance" data-field="valor_ganado_usd" data-row="0" data-fmt="usd">—</b> de
+        <b data-source="avance" data-field="presupuesto_usd" data-row="0" data-fmt="usd">—</b> presupuestados
+        (<b data-source="avance" data-field="horas_hechas" data-row="0" data-fmt="num">—</b> de
+        <b data-source="avance" data-field="horas_totales" data-row="0" data-fmt="num">—</b> horas). Quedan
+        <b data-source="avance" data-field="pendiente_usd" data-row="0" data-fmt="usd">—</b>
+        (<b data-source="avance" data-field="horas_pendientes" data-row="0" data-fmt="num">—</b> horas). El cronograma no registra horas reales,
+        así que el costo se mide como valor ganado (costo planificado de lo terminado) y no se puede calcular el desvío de costo (CPI).</p>
+
+      <h3>Plazos y holguras</h3>
+      <p>Si lo pendiente arranca apenas se puede, el proyecto termina el
+        <b data-source="resumen" data-field="fin_estimado" data-row="0" data-fmt="fecha">—</b>, con
+        <b data-source="resumen" data-field="margen_dias" data-row="0" data-fmt="dias">—</b> de margen sobre la fecha límite del
+        <b data-source="resumen" data-field="fin_limite" data-row="0" data-fmt="fecha">—</b>. Las tareas
+        <b data-source="resumen" data-field="sin_holgura" data-row="0" data-fmt="txt">—</b> forman la ruta crítica restante:
+        un atraso en cualquiera de ellas consume ese margen.
+        Si el cliente lo pide, todo lo pendiente puede correrse hasta
+        <b data-source="resumen" data-field="margen_semanas" data-row="0" data-fmt="num">—</b> semana(s) sin pasar la fecha límite.</p>
+
+      <h3>Hitos</h3>
+      <ul id="inf-hitos" data-source="hitos"></ul>
+
+      <h3>Riesgos de nivel alto</h3>
+      <ul id="inf-riesgos" data-source="riesgos_eval"></ul>
+    </article>
+  </section>
+</div>
+
+<script src="calcs.js"></script>
+<script>
+  const pct = new Intl.NumberFormat('es-AR', { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const usd = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'USD', currencyDisplay: 'narrowSymbol', maximumFractionDigits: 0 });
+  const dec = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const ent = new Intl.NumberFormat('es-AR');
+  const fCorta = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+  const fLarga = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const aFecha = (s) => new Date(s + 'T00:00:00Z');
+  const fecha = (s) => (s ? fCorta.format(aFecha(s)) : '—');
+  const dias = (n) => (n == null ? '—' : `${ent.format(n)} ${Math.abs(n) === 1 ? 'día' : 'días'}`);
+  const exceso = (n) => (n == null ? '—' : n > 0 ? `${dias(n)} tarde` : n < 0 ? `${dias(-n)} antes` : 'Justo en fecha');
+  const formatos = {
+    pct: (v) => pct.format(v), usd: (v) => usd.format(v), dec: (v) => (v == null ? '—' : dec.format(v)),
+    num: (v) => ent.format(v), fecha, fechalarga: (s) => (s ? fLarga.format(aFecha(s)) : '—'),
+    dias, exceso, txt: (v) => (v == null || v === '' ? '—' : String(v)),
+  };
+  const filas = (id) => { const d = dash.data(id); return d.status === 'ok' ? d.data : null; };
+  const buscar = (rows, el) => {
+    if (el.dataset.row != null) return rows[Number(el.dataset.row)];
+    const cond = (el.dataset.where || '').split('&').filter(Boolean).map((p) => p.split('=').map(decodeURIComponent));
+    return rows.find((r) => cond.every(([k, v]) => String(r[k]) === v));
+  };
+  const color = (n) => dash.colors[n % dash.colors.length];
+
+  // Rellena todos los valores marcados con data-fmt.
+  function rellenar() {
+    document.querySelectorAll('.dw [data-fmt]').forEach((el) => {
+      const rows = filas(el.dataset.source);
+      if (!rows) { el.textContent = '—'; el.classList.toggle('dash-skeleton', dash.data(el.dataset.source).status === 'loading'); return; }
+      el.classList.remove('dash-skeleton');
+      const fila = buscar(rows, el);
+      el.textContent = fila ? formatos[el.dataset.fmt](fila[el.dataset.field]) : '—';
+    });
+  }
+
+  // Tabla marcada con data-row-key: cada celda es texto; la clave va en data-key del <tr>.
+  function tabla(sel, rows, render, clase) {
+    const tbody = document.querySelector(sel + ' tbody');
+    const campos = [...document.querySelectorAll(sel + ' th')].map((th) => th.dataset.field);
+    const claves = document.querySelector(sel).dataset.rowKey.split(',');
+    tbody.replaceChildren(...(rows || []).map((r) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = claves.map((k) => encodeURIComponent(String(r[k]))).join(',');
+      if (clase) tr.className = clase(r);
+      campos.forEach((c, i) => {
+        const td = document.createElement('td');
+        if (document.querySelectorAll(sel + ' th')[i].classList.contains('n')) td.className = 'n';
+        const v = render[c] ? render[c](r[c], r) : r[c];
+        if (v instanceof Node) td.append(v); else td.textContent = v ?? '—';
+        tr.append(td);
+      });
+      return tr;
+    }));
+  }
+  const pill = (texto, tono) => { const s = document.createElement('span'); s.className = `dw-pill ${tono}`; s.textContent = texto; return s; };
+
+  // Mide el ancho de textos en un <svg> para dejar márgenes justos.
+  function medir(svg, textos) {
+    const g = svg.append('g').attr('opacity', 0);
+    const w = Math.max(0, ...textos.map((t) => g.append('text').text(t).node().getComputedTextLength()));
+    g.remove();
+    return w;
+  }
+
+  function tooltip(tip, box, x, y, lineas) {
+    tip.replaceChildren(...lineas.map(([k, v], i) => {
+      const d = document.createElement('div');
+      if (i === 0) { d.className = 'k'; d.textContent = k; } else d.textContent = v ? `${k}: ${v}` : k;
+      return d;
+    }));
+    tip.hidden = false;
+    const W = box.clientWidth;
+    const w = tip.offsetWidth;
+    tip.style.left = Math.min(Math.max(0, x + 12), W - w) + 'px';
+    tip.style.top = Math.max(0, y - tip.offsetHeight - 8) + 'px';
+  }
+
+  // ---------- Resumen ----------
+  function dibujarCurva() {
+    const box = document.getElementById('curva-chart');
+    const tip = document.getElementById('curva-tip');
+    const c = filas('curva'), a = filas('avance');
+    box.replaceChildren();
+    tip.hidden = true;
+    if (!c || !a || !c.length) { box.classList.toggle('dash-skeleton', !c || !a); return; }
+    box.classList.remove('dash-skeleton');
+    const W = box.clientWidth; if (!W) return;
+    const H = 240, mt = 14, mb = 26, mr = 12;
+    const av = a[0];
+    const datos = c.map((r) => ({ d: aFecha(r.fecha), v: r.planificado_usd, p: r.avance_planificado, s: r.fecha }));
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Curva S de costo planificado y valor ganado');
+    const y = d3.scaleLinear([0, av.presupuesto_usd], [H - mb, mt]).nice();
+    const ticksY = y.ticks(4);
+    const ml = medir(svg, ticksY.map((t) => usd.format(t))) + 10;
+    const x = d3.scaleUtc([datos[0].d, datos.at(-1).d], [ml, W - mr]);
+    const mes = new Intl.DateTimeFormat('es-AR', { month: 'short', timeZone: 'UTC' });
+    svg.append('g').selectAll('line').data(ticksY).join('line').attr('x1', ml).attr('x2', W - mr).attr('y1', y).attr('y2', y).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(ticksY).join('text').attr('x', ml - 8).attr('y', y).attr('dy', '0.32em').attr('text-anchor', 'end').text((t) => usd.format(t));
+    svg.append('line').attr('x1', ml).attr('x2', W - mr).attr('y1', H - mb).attr('y2', H - mb).attr('stroke', 'var(--cds-chart-axis)');
+    svg.append('g').selectAll('text').data(x.ticks(d3.utcMonth.every(1))).join('text').attr('x', x).attr('y', H - 8).attr('text-anchor', 'middle').text((d) => mes.format(d));
+    const grad = svg.append('defs').append('linearGradient').attr('id', 'dw-area').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', 1);
+    [[0, .26], [.25, .16], [.5, .08], [.75, .03], [1, 0]].forEach(([o, op]) => grad.append('stop').attr('offset', o).attr('style', `stop-color:${color(0)};stop-opacity:${op}`));
+    svg.append('path').datum(datos).attr('fill', 'url(#dw-area)').attr('d', d3.area().x((d) => x(d.d)).y0(H - mb).y1((d) => y(d.v)));
+    svg.append('path').datum(datos).attr('fill', 'none').attr('stroke', color(0)).attr('stroke-width', 2).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round').attr('d', d3.line().x((d) => x(d.d)).y((d) => y(d.v)));
+    const hoy = aFecha(av.hoy);
+    if (hoy >= datos[0].d && hoy <= datos.at(-1).d) {
+      const xh = x(hoy);
+      svg.append('line').attr('x1', xh).attr('x2', xh).attr('y1', mt).attr('y2', H - mb).attr('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '3 3');
+      svg.append('text').attr('x', xh).attr('y', mt - 2).attr('text-anchor', 'middle').text('Hoy');
+      svg.append('circle').attr('cx', xh).attr('cy', y(av.valor_planificado_usd)).attr('r', 4).attr('fill', color(0));
+      svg.append('circle').attr('cx', xh).attr('cy', y(av.valor_ganado_usd)).attr('r', 5).attr('fill', color(1));
+      const izq = xh > W * 0.55;
+      svg.append('text').attr('x', izq ? xh - 9 : xh + 9).attr('y', y(av.valor_ganado_usd)).attr('dy', '0.32em').attr('text-anchor', izq ? 'end' : 'start').attr('style', `fill:${color(1)}`).text(`Ganado ${usd.format(av.valor_ganado_usd)}`);
+      const gy = y(av.valor_ganado_usd), py = y(av.valor_planificado_usd);
+      svg.append('text').attr('x', izq ? xh - 9 : xh + 9).attr('y', Math.max(py, gy + 16)).attr('dy', '0.32em').attr('text-anchor', izq ? 'end' : 'start').text(`Planificado ${usd.format(av.valor_planificado_usd)}`);
+    }
+    const foco = svg.append('circle').attr('r', 4).attr('fill', color(0)).attr('stroke', 'var(--color-panel)').attr('stroke-width', 2).attr('opacity', 0);
+    const bis = d3.bisector((d) => d.d).center;
+    svg.append('rect').attr('x', ml).attr('y', mt).attr('width', W - ml - mr).attr('height', H - mt - mb).attr('fill', 'transparent')
+      .on('pointermove', (ev) => {
+        const [px] = d3.pointer(ev);
+        const d = datos[bis(datos, x.invert(px))];
+        foco.attr('cx', x(d.d)).attr('cy', y(d.v)).attr('opacity', 1);
+        tooltip(tip, box, x(d.d), y(d.v), [[fecha(d.s)], ['Planificado', `${usd.format(d.v)} (${pct.format(d.p)})`]]);
+      })
+      .on('pointerleave', () => { foco.attr('opacity', 0); tip.hidden = true; });
+  }
+
+  function dibujarHitos() {
+    const box = document.getElementById('hitos-lista');
+    const h = filas('hitos');
+    if (!h) { box.classList.toggle('dash-skeleton', dash.data('hitos').status === 'loading'); box.replaceChildren(); return; }
+    box.classList.remove('dash-skeleton');
+    box.replaceChildren(...h.map((r) => {
+      const div = document.createElement('div'); div.className = 'dw-hito';
+      const top = document.createElement('div'); top.className = 'top';
+      const nom = document.createElement('span'); nom.textContent = `${r.hito} · ${r.tareas_hechas}/${r.tareas} tareas · fin ${fecha(r.fin)}`;
+      const val = document.createElement('span'); val.className = 'dw-sub'; val.textContent = `${pct.format(r.avance)} · ${usd.format(r.hecho_usd)} de ${usd.format(r.costo_usd)}`;
+      top.append(nom, val);
+      const bar = document.createElement('div'); bar.className = 'dw-bar';
+      const fill = document.createElement('span'); fill.style.width = `${Math.round(r.avance * 1000) / 10}%`; fill.style.background = r.avance >= 1 ? 'var(--cds-chart-muted)' : color(0);
+      bar.append(fill);
+      div.append(top, bar);
+      return div;
+    }));
+  }
+
+  // ---------- Holguras ----------
+  function dibujarGantt() {
+    const box = document.getElementById('gantt-chart');
+    const tip = document.getElementById('gantt-tip');
+    const p = filas('plan'), a = filas('avance');
+    const ley = document.getElementById('gantt-leyenda');
+    const tonos = { hecha: 'var(--cds-chart-muted)', critica: 'var(--cds-chart-status-critical)', normal: color(0) };
+    ley.replaceChildren(...[['Hecha', tonos.hecha, 1], ['Pendiente en ruta crítica', tonos.critica, 1], ['Pendiente con holgura', tonos.normal, 1], ['Holgura del plan', 'var(--cds-chart-muted)', .35]].map(([t, c, o]) => {
+      const s = document.createElement('span'); const i = document.createElement('i'); i.style.background = c; i.style.opacity = o; s.append(i, t); return s;
+    }));
+    box.replaceChildren(); tip.hidden = true;
+    if (!p || !a) { box.classList.toggle('dash-skeleton', true); return; }
+    box.classList.remove('dash-skeleton');
+    const W = box.clientWidth; if (!W) return;
+    const fila = 24, mt = 16, mb = 24, mr = 10;
+    const H = mt + p.length * fila + mb;
+    box.style.minHeight = H + 'px';
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Diagrama de Gantt con holguras');
+    const corto = W < 560;
+    const etiqueta = (r) => (corto ? r.id : `${r.id} ${r.tarea}`);
+    const ml = medir(svg, p.map(etiqueta)) + 12;
+    const DIA = 864e5;
+    const desde = d3.min(p, (r) => aFecha(r.inicio));
+    const hasta = new Date(d3.max(p, (r) => Math.max(aFecha(r.fin), aFecha(r.fin_mas_tarde))) + DIA);
+    const x = d3.scaleUtc([desde, hasta], [ml, W - mr]);
+    const y = (i) => mt + i * fila;
+    const ticks = x.ticks(corto ? 3 : 8);
+    svg.append('g').selectAll('line').data(ticks).join('line').attr('x1', x).attr('x2', x).attr('y1', mt).attr('y2', H - mb).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(ticks).join('text').attr('x', x).attr('y', H - 8).attr('text-anchor', 'middle').text((d) => fCorta.format(d));
+    svg.append('g').selectAll('text').data(p).join('text').attr('x', 0).attr('y', (r, i) => y(i) + fila / 2).attr('dy', '0.32em').text(etiqueta);
+    const tono = (r) => (r.estado === 'Done' ? tonos.hecha : r.critica === 'Sí' ? tonos.critica : tonos.normal);
+    const g = svg.append('g');
+    g.selectAll('rect.h').data(p.filter((r) => r.holgura_dias > 0)).join('rect').attr('class', 'h')
+      .attr('x', (r) => x(new Date(+aFecha(r.fin) + DIA))).attr('width', (r) => Math.max(0, x(new Date(+aFecha(r.fin_mas_tarde) + DIA)) - x(new Date(+aFecha(r.fin) + DIA))))
+      .attr('y', (r) => y(p.indexOf(r)) + 8).attr('height', fila - 16).attr('rx', 3).attr('fill', 'var(--cds-chart-muted)').attr('opacity', .35);
+    g.selectAll('rect.b').data(p).join('rect').attr('class', 'b')
+      .attr('x', (r) => x(aFecha(r.inicio))).attr('width', (r) => Math.max(2, x(new Date(+aFecha(r.fin) + DIA)) - x(aFecha(r.inicio)) - 1))
+      .attr('y', (r, i) => y(i) + 5).attr('height', fila - 10).attr('rx', 4).attr('fill', tono);
+    const hoy = aFecha(a[0].hoy);
+    if (hoy >= desde && hoy <= hasta) {
+      svg.append('line').attr('x1', x(hoy)).attr('x2', x(hoy)).attr('y1', mt - 4).attr('y2', H - mb).attr('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '3 3');
+      svg.append('text').attr('x', x(hoy)).attr('y', mt - 6).attr('text-anchor', 'middle').text('Hoy');
+    }
+    svg.append('rect').attr('x', 0).attr('y', mt).attr('width', W).attr('height', p.length * fila).attr('fill', 'transparent')
+      .on('pointermove', (ev) => {
+        const [px, py] = d3.pointer(ev);
+        const r = p[Math.min(p.length - 1, Math.max(0, Math.floor((py - mt) / fila)))];
+        tooltip(tip, box, px, y(p.indexOf(r)) + 4, [[`${r.id} ${r.tarea}`], [`${fecha(r.inicio)} – ${fecha(r.fin)}`, ''], ['Estado', r.estado === 'Done' ? 'Hecha' : 'Pendiente'], ['Holgura del plan', dias(r.holgura_dias)], ['Arranque más tarde', fecha(r.inicio_mas_tarde)]]);
+      })
+      .on('pointerleave', () => { tip.hidden = true; });
+  }
+
+  // ---------- Escenarios ----------
+  const selOpcion = document.getElementById('sim-opcion');
+  const selSemanas = document.getElementById('sim-semanas');
+  selOpcion.addEventListener('change', () => dash.setParams({ opcion: selOpcion.value }));
+  selSemanas.addEventListener('change', () => dash.setParams({ semanas: Number(selSemanas.value) }));
+
+  function dibujarEscenarios() {
+    const pr = filas('pronostico') || [];
+    const opciones = [['todo', 'Todo lo pendiente (pedido del cliente)'], ...pr.map((r) => [r.id, `Solo ${r.id} ${r.tarea}`])];
+    const params = dash.params();
+    const opcion = opciones.some(([v]) => v === params.opcion) ? params.opcion : 'todo';
+    const semanas = Number(params.semanas ?? 1);
+    selOpcion.replaceChildren(...opciones.map(([v, t]) => new Option(t, v)));
+    selOpcion.value = opcion;
+    selSemanas.value = String(semanas);
+    const donde = `opcion=${encodeURIComponent(opcion)}&semanas=${semanas}`;
+    ['sim-fin', 'sim-limite', 'sim-dias', 'sim-viable'].forEach((id) => document.getElementById(id).setAttribute('data-where', donde));
+    const e = filas('escenarios');
+    const elegido = e ? e.find((r) => r.opcion === opcion && r.semanas === semanas) : null;
+    const viable = document.getElementById('sim-viable');
+    viable.className = 'dw-pill ' + (elegido ? (elegido.viable === 'Sí' ? 'ok' : 'bad') : '');
+    document.getElementById('sim-dias').className = 'v ' + (elegido ? (elegido.dias_sobre_limite > 0 ? 'bad' : elegido.dias_sobre_limite === 0 ? 'warn' : 'ok') : '');
+    document.getElementById('esc-titulo').textContent = opcion === 'todo' ? 'Todo lo pendiente: semana por semana' : `Solo ${opcion}: semana por semana`;
+    tabla('#tabla-escenarios', e ? e.filter((r) => r.opcion === opcion) : [], {
+      semanas: (v) => ent.format(v),
+      fin_proyecto: fecha,
+      dias_sobre_limite: exceso,
+      viable: (v) => pill(v, v === 'Sí' ? 'ok' : 'bad'),
+    }, (r) => (r.semanas === semanas ? 'sel' : ''));
+  }
+
+  // ---------- Riesgos ----------
+  function dibujarRiesgos() {
+    const r = filas('riesgos_eval');
+    const grid = document.getElementById('matriz-grid');
+    if (!r) { grid.replaceChildren(); grid.classList.toggle('dash-skeleton', dash.data('riesgos_eval').status === 'loading'); }
+    else {
+      grid.classList.remove('dash-skeleton');
+      const nombresP = ['Baja', 'Media', 'Alta'], nombresI = ['Bajo', 'Medio', 'Alto'];
+      const celdas = [document.createElement('div')];
+      nombresI.forEach((n) => { const d = document.createElement('div'); d.className = 'ax'; d.textContent = `Impacto ${n.toLowerCase()}`; celdas.push(d); });
+      for (let p = 3; p >= 1; p--) {
+        const ax = document.createElement('div'); ax.className = 'ax'; ax.textContent = `Prob. ${nombresP[p - 1].toLowerCase()}`; celdas.push(ax);
+        for (let i = 1; i <= 3; i++) {
+          const c = document.createElement('div');
+          c.className = 'cell ' + (p * i >= 6 ? 'n3' : p * i >= 3 ? 'n2' : 'n1');
+          r.filter((x) => x.prob_n === p && x.impacto_n === i).forEach((x) => { const s = document.createElement('span'); s.className = 'dw-chip'; s.title = x.riesgo; s.textContent = x.id; c.append(s); });
+          celdas.push(c);
+        }
+      }
+      grid.replaceChildren(...celdas);
+    }
+    tabla('#tabla-riesgos', r, {
+      nivel: (v) => pill(v, v === 'Alto' ? 'bad' : v === 'Medio' ? 'warn' : 'ok'),
+      tareas_pendientes: (v) => v || 'Ninguna',
+    });
+  }
+
+  // ---------- Informe y tablas ----------
+  function dibujarTextos() {
+    const a = filas('avance');
+    const spi = a && a[0].spi;
+    const texto = spi == null ? '—' : spi > 1.005 ? 'Adelantado respecto del plan' : spi < 0.995 ? 'Atrasado respecto del plan' : 'Al día con el plan';
+    const tono = spi == null ? '' : spi > 1.005 ? 'ok' : spi < 0.995 ? 'bad' : '';
+    const st = document.getElementById('spi-texto'); st.textContent = texto; st.className = 'dw-sub ' + tono;
+    document.getElementById('inf-spi').textContent = spi == null ? '' : `: el equipo va ${spi > 1.005 ? 'adelantado' : spi < 0.995 ? 'atrasado' : 'al día'} (más de 1 es adelanto)`;
+    const h = filas('hitos');
+    document.getElementById('inf-hitos').replaceChildren(...(h || []).map((r) => { const li = document.createElement('li'); li.textContent = `${r.hito}: ${pct.format(r.avance)} (${r.tareas_hechas} de ${r.tareas} tareas, cierra el ${fecha(r.fin)}).`; return li; }));
+    const r = filas('riesgos_eval');
+    document.getElementById('inf-riesgos').replaceChildren(...(r || []).filter((x) => x.nivel === 'Alto').map((x) => { const li = document.createElement('li'); li.textContent = `${x.id} ${x.riesgo}: ${x.mitigacion.toLowerCase()}. ${x.estado === 'Expuesto' ? `Sigue expuesto por ${x.tareas_pendientes}.` : 'Sin tareas pendientes.'}`; return li; }));
+    tabla('#tabla-pronostico', filas('pronostico'), {
+      inicio_plan: fecha, inicio_posible: fecha, inicio_mas_tarde: fecha, holgura_dias: dias,
+    });
+    tabla('#tabla-plan', filas('plan'), {
+      inicio: fecha, fin: fecha, inicio_mas_tarde: fecha, holgura_dias: dias,
+      estado: (v) => (v === 'Done' ? 'Hecha' : 'Pendiente'),
+      critica: (v) => (v === 'Sí' ? pill('Sí', 'bad') : 'No'),
+    });
+  }
+
+  // ---------- Pestañas ----------
+  const tabs = [...document.querySelectorAll('.dw-tab')];
+  let actual = 'resumen';
+  function dibujar() {
+    dibujarEscenarios();
+    rellenar();
+    dibujarTextos();
+    dibujarRiesgos();
+    if (actual === 'resumen') { dibujarCurva(); dibujarHitos(); }
+    if (actual === 'holguras') dibujarGantt();
+  }
+  function mostrar(id, enlazar = true) {
+    actual = id;
+    tabs.forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === id)));
+    document.querySelectorAll('.dw-page').forEach((s) => { s.hidden = s.id !== id; });
+    if (enlazar) dash.setLink(id);
+    dibujar();
+  }
+  tabs.forEach((b) => b.addEventListener('click', () => mostrar(b.dataset.tab)));
+  const inicial = location.hash.slice(1);
+  if (tabs.some((b) => b.dataset.tab === inicial)) mostrar(inicial, false);
+  dash.onData(dibujar);
+</script>
